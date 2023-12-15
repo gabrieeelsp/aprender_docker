@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    ports:
+      - 3036:3036
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: mysql --user=${MYSQL_USER} --password=${MYSQL_PASSWORD} -e "SHOW DATABASES"
+      interval: 1s
+      timeout: 3s
+      retries: 3
+
+  phpmyadmin:
+    image: phpmyadmin:5.1
+    ports:
+      - 80:80
+    environment:
+      - PMA_HOST=mysql
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
